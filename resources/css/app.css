@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        color-scheme: dark;
+        --background: 0 0% 2%;
+        --foreground: 0 0% 96%;
+        --card: 0 13% 5%;
+        --card-foreground: 0 0% 100%;
+        --popover: 0 13% 5%;
+        --popover-foreground: 0 0% 100%;
+        --primary: 350 100% 27%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 353 84% 12%;
+        --secondary-foreground: 0 0% 100%;
+        --muted: 0 0% 12%;
+        --muted-foreground: 0 0% 72%;
+        --accent: 44 65% 52%;
+        --accent-foreground: 0 0% 2%;
+        --destructive: 347 100% 38%;
+        --destructive-foreground: 0 0% 100%;
+        --border: 0 0% 100% / 0.08;
+        --input: 0 0% 100% / 0.08;
+        --ring: 350 100% 38%;
+        --radius: 0.65rem;
+    }
+
+    * {
+        @apply border-border;
+    }
+
+    html {
+        background: #050505;
+    }
+
+    body {
+        @apply bg-background text-foreground antialiased;
+        background:
+            radial-gradient(circle at top left, rgba(139, 0, 24, 0.22), transparent 32rem),
+            radial-gradient(circle at top right, rgba(212, 175, 55, 0.12), transparent 28rem),
+            #050505;
+    }
+}
+
+@layer components {
+    .velvet-card {
+        @apply border border-white/10 bg-[#0D0A0A]/85 shadow-xl shadow-black/30 backdrop-blur;
+    }
+
+    .velvet-button {
+        @apply bg-gradient-to-r from-[#8B0018] to-[#C1002B] text-white shadow-lg shadow-[#8B0018]/20 hover:from-[#A4001F] hover:to-[#D10030];
+    }
+}
