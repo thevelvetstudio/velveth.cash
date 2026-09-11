@@ -15,7 +15,7 @@ export default function FinancialMovements({ auth, movements, departments, payme
     const fields: ResourceField[] = [
         { name: 'concept', label: 'Concepto', required: true },
         { name: 'department_id', label: 'Departamento', type: 'select', options: departmentOptions },
-        { name: 'type', label: 'Tipo', type: 'select', required: true, options: ['Ingreso', 'Gasto'].map((value) => ({ label: value, value })) },
+        { name: 'type', label: 'Tipo', type: 'select', required: true, defaultValue: 'Ingreso', options: ['Ingreso', 'Gasto'].map((value) => ({ label: value, value })) },
         { name: 'amount', label: 'Valor', type: 'number', required: true },
         { name: 'movement_date', label: 'Fecha', type: 'date', required: true },
         { name: 'status', label: 'Estado', type: 'select', required: true, options: statuses.map((value) => ({ label: value, value })) },

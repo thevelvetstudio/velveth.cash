@@ -7,7 +7,7 @@ type Props = PageProps<{
 
 const fields: ResourceField[] = [
     { name: 'title', label: 'Título', required: true },
-    { name: 'type', label: 'Tipo', type: 'select', required: true, options: ['Financiero', 'Compras', 'Inventario', 'Departamentos'].map((value) => ({ label: value, value })) },
+    { name: 'type', label: 'Tipo', type: 'select', required: true, hidden: true, defaultValue: 'Financiero', options: ['Financiero', 'Compras', 'Inventario', 'Departamentos'].map((value) => ({ label: value, value })) },
     { name: 'period_start', label: 'Inicio período', type: 'date' },
     { name: 'period_end', label: 'Fin período', type: 'date' },
     { name: 'status', label: 'Estado', type: 'select', required: true, options: ['Planeado', 'Pendiente', 'Aprobado', 'Cancelado'].map((value) => ({ label: value, value })) },

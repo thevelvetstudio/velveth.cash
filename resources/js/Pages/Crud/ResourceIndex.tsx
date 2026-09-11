@@ -8,13 +8,14 @@ import { DataTable } from '@/Components/data-table/DataTable';
 import { MoneyDisplay } from '@/Components/shared/MoneyDisplay';
 import { PageHeader } from '@/Components/shared/PageHeader';
 import { StatusBadge } from '@/Components/shared/StatusBadge';
+import { DateTimePicker } from '@/Components/shared/DateTimePicker';
 import { Button } from '@/Components/ui/button';
 import { Checkbox } from '@/Components/ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
 import { Input } from '@/Components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import { Textarea } from '@/Components/ui/textarea';
-import { formatDate } from '@/lib/format';
+import { formatDate, formatNumericInput, formatDateTimeInput, parseNumericInput } from '@/lib/format';
 import { PageProps } from '@/types';
 
 export type FieldOption = {
@@ -31,6 +32,8 @@ export type ResourceField = {
     requiredOnCreate?: boolean;
     accept?: string;
     previewKey?: string;
+    hidden?: boolean;
+    defaultValue?: any;
     initialValue?: (row: ResourceRow) => any;
 };
 
@@ -58,6 +61,11 @@ type ResourceIndexProps = PageProps<{
 
 function emptyData(fields: ResourceField[]) {
     return fields.reduce<Record<string, any>>((carry, field) => {
+        if (field.defaultValue !== undefined) {
+            carry[field.name] = field.defaultValue;
+            return carry;
+        }
+
         carry[field.name] = field.type === 'file' ? null : field.type === 'multiselect' ? [] : '';
         return carry;
     }, {});
@@ -76,13 +84,41 @@ function formValue(row: ResourceRow, field: ResourceField) {
         return field.initialValue(row);
     }
 
-    const value = row[field.name] ?? '';
+    const value = row[field.name] ?? field.defaultValue ?? '';
 
     if (field.type === 'date' && typeof value === 'string') {
-        return value.slice(0, 10);
+        return formatDateTimeInput(value);
+    }
+
+    if (field.type === 'number') {
+        return parseNumericInput(value);
     }
 
     return value;
+}
+
+function validationToastMessage(formErrors: Record<string, string>, fields: ResourceField[]) {
+    const [fieldName, message] = Object.entries(formErrors)[0] ?? [];
+
+    if (!fieldName || !message) {
+        return 'Revisa los campos marcados antes de guardar.';
+    }
+
+    const field = fields.find((item) => item.name === fieldName);
+
+    return field ? `${field.label}: ${message}` : message;
+}
+
+function applyFieldDefaults(currentData: Record<string, any>, fields: ResourceField[]) {
+    return fields.reduce<Record<string, any>>((carry, field) => {
+        const value = carry[field.name];
+
+        if ((value === '' || value === null || value === undefined) && field.defaultValue !== undefined) {
+            carry[field.name] = field.defaultValue;
+        }
+
+        return carry;
+    }, { ...currentData });
 }
 
 export default function ResourceIndex({
@@ -221,16 +257,18 @@ export default function ResourceIndex({
         const options = {
             preserveScroll: true,
             onSuccess: () => setOpen(false),
-            onError: () => toast.error('Revisa los campos marcados antes de guardar.'),
+            onError: (formErrors: Record<string, string>) => toast.error(validationToastMessage(formErrors, fields)),
+            onFinish: () => transform((currentData) => currentData),
         };
+
+        transform((currentData) => applyFieldDefaults(currentData, fields));
 
         if (editing) {
             if (hasFileFields) {
-                transform((currentData) => ({ ...currentData, _method: 'put' }));
+                transform((currentData) => ({ ...applyFieldDefaults(currentData, fields), _method: 'put' }));
                 post(`${resourceUrl}/${editing.id}`, {
                     ...options,
                     forceFormData: true,
-                    onFinish: () => transform((currentData) => currentData),
                 });
                 return;
             }
@@ -282,7 +320,9 @@ export default function ResourceIndex({
                         </DialogHeader>
 
                         <div className="grid gap-4 sm:grid-cols-2">
-                            {fields.map((field) => (
+                            {fields
+                                .filter((field) => !field.hidden)
+                                .map((field) => (
                                 <label key={field.name} className={field.type === 'textarea' || field.type === 'multiselect' ? 'space-y-2 sm:col-span-2' : 'space-y-2'}>
                                     <span className="text-sm font-medium text-white">
                                         {field.label}
@@ -338,11 +378,20 @@ export default function ResourceIndex({
                                                 </span>
                                             ))}
                                         </div>
+                                    ) : field.type === 'date' ? (
+                                        <DateTimePicker
+                                            value={data[field.name] ?? ''}
+                                            onChange={(value) => setData(field.name, value)}
+                                            placeholder={`Seleccionar ${field.label.toLowerCase()}`}
+                                        />
                                     ) : (
                                         <Input
-                                            type={field.type ?? 'text'}
-                                            value={data[field.name] ?? ''}
-                                            onChange={(event) => setData(field.name, event.target.value)}
+                                            type={field.type === 'number' ? 'text' : field.type ?? 'text'}
+                                            inputMode={field.type === 'number' ? 'decimal' : undefined}
+                                            value={field.type === 'number' ? formatNumericInput(data[field.name] ?? '') : data[field.name] ?? ''}
+                                            onChange={(event) =>
+                                                setData(field.name, field.type === 'number' ? parseNumericInput(event.target.value) : event.target.value)
+                                            }
                                         />
                                     )}
                                     {errors[field.name] && <p className="text-xs text-red-300">{errors[field.name]}</p>}
