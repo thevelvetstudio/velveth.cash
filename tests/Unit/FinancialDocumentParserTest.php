@@ -39,4 +39,11 @@ class FinancialDocumentParserTest extends TestCase
         $this->assertSame(8500.0, $result['total_amount']);
         $this->assertTrue($result['totals_valid']);
     }
+
+    public function test_uses_final_total_instead_of_item_total_column(): void
+    {
+        $result = (new FinancialDocumentParser())->parse("Valor Total\n$ 28.000\nValor Total\n$ 12.000\nSUBTOTAL $54.622\nIVA (19%) $10.378\nTOTAL A PAGAR\n$ 65.000");
+
+        $this->assertSame(65000.0, $result['total_amount']);
+    }
 }
