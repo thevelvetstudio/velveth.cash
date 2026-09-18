@@ -35,6 +35,11 @@ export type ResourceField = {
     hidden?: boolean;
     defaultValue?: any;
     initialValue?: (row: ResourceRow) => any;
+    createOption?: {
+        label: string;
+        onCreate: (setValue: (value: string) => void, values: Record<string, any>) => void;
+    };
+    suggestOption?: (values: Record<string, any>, options: FieldOption[]) => string | null;
 };
 
 export type ResourceColumn = {
@@ -136,8 +141,17 @@ export default function ResourceIndex({
 }: ResourceIndexProps) {
     const [open, setOpen] = useState(false);
     const [editing, setEditing] = useState<ResourceRow | null>(null);
+    const [selectSearch, setSelectSearch] = useState<Record<string, string>>({});
     const { data, setData, post, put, processing, errors, reset, clearErrors, transform } = useForm<Record<string, any>>(emptyData(fields));
     const hasFileFields = fields.some((field) => field.type === 'file');
+
+    useEffect(() => {
+        fields.filter((field) => field.type === 'select' && field.suggestOption).forEach((field) => {
+            if (data[field.name]) return;
+            const suggestion = field.suggestOption?.(data, field.options ?? []);
+            if (suggestion) setData(field.name, suggestion);
+        });
+    }, [data.name, data.department_id, editing, open]);
 
     useEffect(() => {
         if (new URLSearchParams(window.location.search).get('create') === '1') {
@@ -361,17 +375,32 @@ export default function ResourceIndex({
                                             />
                                         </div>
                                     ) : field.type === 'select' ? (
-                                        <Select value={String(data[field.name] || 'none')} onValueChange={(value) => setData(field.name, value === 'none' ? '' : value)}>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder={`Seleccionar ${field.label.toLowerCase()}`} />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="none">Sin seleccionar</SelectItem>
-                                                {(field.options ?? []).map((option) => (
-                                                    <SelectItem key={option.value} value={option.value}>
-                                                        {option.label}
-                                                    </SelectItem>
+                                        <Select value={String(data[field.name] || 'none')} onValueChange={(value) => {
+                                            if (value === '__create_new__' && field.createOption) {
+                                                field.createOption.onCreate((createdValue) => setData(field.name, createdValue), data);
+                                                return;
+                                            }
+                                            setData(field.name, value === 'none' ? '' : value);
+                                        }}>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder={`Seleccionar ${field.label.toLowerCase()}`} />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <div className="p-2" onKeyDown={(event) => event.stopPropagation()} onPointerDown={(event) => event.stopPropagation()}>
+                                                        <Input
+                                                            value={selectSearch[field.name] ?? ''}
+                                                            onChange={(event) => setSelectSearch((current) => ({ ...current, [field.name]: event.target.value }))}
+                                                            placeholder="Buscar..."
+                                                            className="h-8"
+                                                        />
+                                                    </div>
+                                                    <SelectItem value="none">Sin seleccionar</SelectItem>
+                                                    {(field.options ?? []).filter((option) => option.label.toLowerCase().includes((selectSearch[field.name] ?? '').toLowerCase())).map((option) => (
+                                                        <SelectItem key={option.value} value={option.value}>
+                                                            {option.label}
+                                                        </SelectItem>
                                                 ))}
+                                                {field.createOption && <SelectItem value="__create_new__" className="text-[#D4AF37]">{field.createOption.label}</SelectItem>}
                                             </SelectContent>
                                         </Select>
                                     ) : field.type === 'multiselect' ? (

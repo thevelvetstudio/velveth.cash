@@ -63,9 +63,7 @@ Route::get('/dashboard', function () {
     $pendingPurchases = Purchase::query()->where('status', 'Pendiente');
     $pendingPurchasesAmount = (float) (clone $pendingPurchases)->sum('total_amount');
     $pendingPurchasesCount = (clone $pendingPurchases)->count();
-    $lowInventoryCount = InventoryItem::query()
-        ->whereColumn('quantity', '<=', 'minimum_stock')
-        ->count();
+    $inventoryItemCount = InventoryItem::query()->count();
     $totalBudget = (float) Department::query()->sum('monthly_budget');
 
     $cashFlowStart = now()->startOfMonth()->subMonths(5);
@@ -120,7 +118,7 @@ Route::get('/dashboard', function () {
             'pendingPurchasesCount' => $pendingPurchasesCount,
             'netFlow' => $monthlyIncome - $monthlyExpenses,
             'totalBudget' => $totalBudget,
-            'lowInventoryCount' => $lowInventoryCount,
+            'inventoryItemCount' => $inventoryItemCount,
         ],
         'cashFlow' => $cashFlow,
         'sectors' => $sectors,
@@ -149,6 +147,7 @@ Route::middleware('auth')->group(function () {
         ->name('financial-projections.attachments.show');
     Route::resource('purchases', PurchaseController::class)->except(['create', 'show', 'edit']);
     Route::resource('inventory-items', InventoryItemController::class)->except(['create', 'show', 'edit']);
+    Route::post('/inventory-categories', [InventoryItemController::class, 'storeCategory'])->name('inventory-categories.store');
     Route::get('/inventory-items/{inventoryItem}/image', [InventoryItemController::class, 'image'])->name('inventory-items.image');
     Route::resource('reports', ReportController::class)->except(['create', 'show', 'edit']);
     Route::resource('users', UserController::class)->except(['create', 'show', 'edit']);
