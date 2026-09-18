@@ -52,4 +52,83 @@
     .velvet-button {
         @apply bg-gradient-to-r from-[#8B0018] to-[#C1002B] text-white shadow-lg shadow-[#8B0018]/20 hover:from-[#A4001F] hover:to-[#D10030];
     }
+
+    /* El formulario de proyecciones conserva header y acciones visibles durante el scroll. */
+    form[class*="max-w-3xl"] > h2 {
+        position: sticky;
+        top: -1.5rem;
+        z-index: 20;
+        margin: -1.5rem -1.5rem 0;
+        padding: 1.25rem 4rem 1rem 1.5rem;
+        background: #0d0a0a;
+    }
+
+    form[class*="max-w-3xl"] {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255, 255, 255, 0.28) transparent;
+    }
+
+    form[class*="max-w-3xl"]::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    form[class*="max-w-3xl"]::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    form[class*="max-w-3xl"]::-webkit-scrollbar-thumb {
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.28);
+    }
+
+    form[class*="max-w-3xl"]::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.48);
+    }
+
+    .dialog-shell {
+        max-height: 90vh;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255, 255, 255, 0.28) transparent;
+    }
+
+    .dialog-shell::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .dialog-shell::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .dialog-shell::-webkit-scrollbar-thumb {
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.28);
+    }
+
+    .dialog-shell .dialog-header {
+        position: sticky;
+        top: -1.5rem;
+        z-index: 20;
+        margin: -1.5rem -1.5rem 0;
+        padding: 1.25rem 3rem 1rem 1.5rem;
+        background: #0d0a0a;
+    }
+
+    .dialog-shell .dialog-footer {
+        position: sticky;
+        bottom: -1.5rem;
+        z-index: 20;
+        margin: 0 -1.5rem -1.5rem;
+        padding: 1rem 1.5rem 1.5rem;
+        background: linear-gradient(to bottom, rgba(13, 10, 10, 0.86), #0d0a0a 35%);
+    }
+
+    form[class*="max-w-3xl"] > div:last-child {
+        position: sticky;
+        bottom: -1.5rem;
+        z-index: 20;
+        margin: 0 -1.5rem -1.5rem;
+        padding: 1rem 1.5rem 1.5rem;
+        background: linear-gradient(to bottom, rgba(13, 10, 10, 0.86), #0d0a0a 35%);
+    }
 }

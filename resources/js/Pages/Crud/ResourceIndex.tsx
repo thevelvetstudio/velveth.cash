@@ -57,6 +57,7 @@ type ResourceIndexProps = PageProps<{
     storeUrl: string;
     resourceUrl: string;
     searchPlaceholder?: string;
+    initialData?: Record<string, any> | null;
 }>;
 
 function emptyData(fields: ResourceField[]) {
@@ -131,6 +132,7 @@ export default function ResourceIndex({
     storeUrl,
     resourceUrl,
     searchPlaceholder = 'Buscar...',
+    initialData = null,
 }: ResourceIndexProps) {
     const [open, setOpen] = useState(false);
     const [editing, setEditing] = useState<ResourceRow | null>(null);
@@ -150,6 +152,12 @@ export default function ResourceIndex({
             clearErrors();
         }
     }, [open]);
+
+    useEffect(() => {
+        if (open && !editing && initialData) {
+            Object.entries(initialData).forEach(([key, value]) => setData(key, value ?? ''));
+        }
+    }, [open, editing, initialData]);
 
     const tableColumns = useMemo<ColumnDef<ResourceRow>[]>(
         () => [

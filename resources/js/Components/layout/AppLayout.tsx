@@ -1,6 +1,6 @@
 import { PropsWithChildren } from 'react';
 import { Link } from '@inertiajs/react';
-import { BarChart3, Bell, Building2, ChevronUp, LayoutDashboard, LogOut, Menu, Package, Settings, UserCircle, Users, WalletCards, Warehouse } from 'lucide-react';
+import { BarChart3, Bell, Building2, ChevronUp, LayoutDashboard, LogOut, Menu, Package, Settings, UserCircle, Users, WalletCards, Warehouse, TrendingUp } from 'lucide-react';
 import { Button } from '@/Components/ui/button';
 import { Avatar, AvatarFallback } from '@/Components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/Components/ui/dropdown-menu';
@@ -8,11 +8,13 @@ import { Separator } from '@/Components/ui/separator';
 import { Sheet, SheetContent, SheetTrigger } from '@/Components/ui/sheet';
 import { cn } from '@/lib/utils';
 import { User } from '@/types';
+import { ScanExpenseDialog } from '@/Components/shared/ScanExpenseDialog';
 
 const navItems = [
     { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { label: 'Finanzas', href: '/financial-movements', icon: WalletCards },
     { label: 'Compras', href: '/purchases', icon: Package },
+    { label: 'Proyecciones', href: '/financial-projections', icon: TrendingUp },
     { label: 'Inventario', href: '/inventory-items', icon: Warehouse },
     { label: 'Departamentos', href: '/departments', icon: Building2 },
     { label: 'Usuarios', href: '/users', icon: Users },
@@ -36,6 +38,7 @@ function SidebarContent() {
                         {item.label}
                     </Link>
                 ))}
+                <div className="pt-3"><ScanExpenseDialog label="Escanear texto OCR" className="w-full justify-start border-[#D4AF37]/40 bg-[#D4AF37]/10 text-white hover:bg-[#D4AF37]/20" /></div>
             </nav>
             <div className="p-3">
                 <DropdownMenu>

@@ -31,4 +31,15 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'ocr' => [
+        'enabled' => env('OCR_ENABLED', true),
+        'provider' => env('OCR_PROVIDER', 'ocr_space'),
+    ],
+
+    'ocr_space' => [
+        'api_key' => env('OCR_SPACE_API_KEY'),
+        'endpoint' => env('OCR_SPACE_ENDPOINT', 'https://api.ocr.space/parse/image'),
+        'timeout' => env('OCR_SPACE_TIMEOUT', 45),
+    ],
+
 ];
