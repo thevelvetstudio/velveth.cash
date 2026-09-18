@@ -29,7 +29,7 @@ class FinancialMovementController extends Controller
                 ->orderBy('sort_order')
                 ->orderBy('name')
                 ->get(['id', 'name', 'code']),
-            'ocrDraft' => $request->query('ocr_token') ? Arr::only(session('ocr_drafts.'.$request->query('ocr_token'), []), ['token', 'document_type', 'invoice_number', 'supplier_name', 'supplier_tax_id', 'currency', 'date', 'subtotal', 'discount_amount', 'tax_amount', 'total_amount']) : null,
+            'ocrDraft' => $request->query('ocr_token') ? Arr::only(session('ocr_drafts.'.$request->query('ocr_token'), []), ['token', 'document_type', 'invoice_number', 'supplier_name', 'supplier_tax_id', 'currency', 'date', 'subtotal', 'discount_amount', 'tax_amount', 'total_amount', 'line_items', 'totals_valid', 'totals_difference', 'confidence']) : null,
         ]);
     }
 
