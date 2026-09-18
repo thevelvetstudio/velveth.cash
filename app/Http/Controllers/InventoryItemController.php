@@ -20,13 +20,19 @@ class InventoryItemController extends Controller
         ]);
     }
 
+    public function image(InventoryItem $inventoryItem)
+    {
+        abort_unless($inventoryItem->image_path && Storage::disk('local')->exists($inventoryItem->image_path), 404);
+        return response()->file(Storage::disk('local')->path($inventoryItem->image_path));
+    }
+
     public function store(Request $request)
     {
         $data = $this->validated($request);
         unset($data['image']);
 
         if ($request->hasFile('image')) {
-            $data['image_path'] = $request->file('image')->store('inventory-items', 'public');
+            $data['image_path'] = $request->file('image')->store('inventory-items', 'local');
         }
 
         InventoryItem::create($data);
@@ -41,10 +47,10 @@ class InventoryItemController extends Controller
 
         if ($request->hasFile('image')) {
             if ($inventoryItem->image_path) {
-                Storage::disk('public')->delete($inventoryItem->image_path);
+                Storage::disk('local')->delete($inventoryItem->image_path);
             }
 
-            $data['image_path'] = $request->file('image')->store('inventory-items', 'public');
+            $data['image_path'] = $request->file('image')->store('inventory-items', 'local');
         }
 
         $inventoryItem->update($data);
@@ -55,7 +61,7 @@ class InventoryItemController extends Controller
     public function destroy(InventoryItem $inventoryItem)
     {
         if ($inventoryItem->image_path) {
-            Storage::disk('public')->delete($inventoryItem->image_path);
+            Storage::disk('local')->delete($inventoryItem->image_path);
         }
 
         $inventoryItem->delete();

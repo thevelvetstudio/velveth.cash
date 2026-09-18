@@ -3,6 +3,7 @@
 use App\Models\Department;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\FinancialMovementController;
+use App\Http\Controllers\FinancialProjectionController;
 use App\Http\Controllers\InventoryItemController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PurchaseController;
@@ -138,8 +139,17 @@ Route::get('/dashboard', function () {
 Route::middleware('auth')->group(function () {
     Route::resource('departments', DepartmentController::class)->except(['create', 'show', 'edit']);
     Route::resource('financial-movements', FinancialMovementController::class)->except(['create', 'show', 'edit']);
+    Route::get('/financial-movements/{financialMovement}/image', [FinancialMovementController::class, 'image'])->name('financial-movements.image');
+    Route::post('/financial-movements/analyze-document', [FinancialMovementController::class, 'analyze'])->name('financial-movements.analyze');
+    Route::get('/financial-movements/{financialMovement}/support', [FinancialMovementController::class, 'support'])->name('financial-movements.support');
+    Route::resource('financial-projections', FinancialProjectionController::class)->except(['create', 'show', 'edit']);
+    Route::post('/financial-projections/{financialProjection}/convert-to-purchase', [FinancialProjectionController::class, 'convertToPurchase'])
+        ->name('financial-projections.convert-to-purchase');
+    Route::get('/financial-projection-attachments/{attachment}', [FinancialProjectionController::class, 'showAttachment'])
+        ->name('financial-projections.attachments.show');
     Route::resource('purchases', PurchaseController::class)->except(['create', 'show', 'edit']);
     Route::resource('inventory-items', InventoryItemController::class)->except(['create', 'show', 'edit']);
+    Route::get('/inventory-items/{inventoryItem}/image', [InventoryItemController::class, 'image'])->name('inventory-items.image');
     Route::resource('reports', ReportController::class)->except(['create', 'show', 'edit']);
     Route::resource('users', UserController::class)->except(['create', 'show', 'edit']);
 

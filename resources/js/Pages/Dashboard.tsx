@@ -12,6 +12,7 @@ import { PageHeader } from '@/Components/shared/PageHeader';
 import { SectionTitle } from '@/Components/shared/SectionTitle';
 import { StatusBadge } from '@/Components/shared/StatusBadge';
 import { QuickActionMenu } from '@/Components/shared/QuickActionMenu';
+import { ScanExpenseDialog } from '@/Components/shared/ScanExpenseDialog';
 import { Button } from '@/Components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/Components/ui/tabs';
@@ -144,9 +145,7 @@ export default function Dashboard({
                     title="Dashboard financiero"
                     description="Resumen operativo, compras pendientes, alertas e inventario crítico."
                     actions={
-                        <Button asChild>
-                            <Link href="/financial-movements?create=1">Nuevo movimiento</Link>
-                        </Button>
+                        <div className="flex flex-wrap gap-2"><ScanExpenseDialog /><Button asChild><Link href="/financial-movements?create=1">Nuevo movimiento</Link></Button></div>
                     }
                 />
 
