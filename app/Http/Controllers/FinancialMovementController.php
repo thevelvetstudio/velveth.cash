@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Services\Ocr\FinancialDocumentParser;
 use App\Services\Ocr\OcrService;
+use App\Services\Ocr\ImagePreprocessor;
 use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
 use Throwable;
@@ -32,14 +33,16 @@ class FinancialMovementController extends Controller
         ]);
     }
 
-    public function analyze(Request $request, OcrService $ocr, FinancialDocumentParser $parser)
+    public function analyze(Request $request, OcrService $ocr, FinancialDocumentParser $parser, ImagePreprocessor $preprocessor)
     {
         $data = $request->validate(['document' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:10240']]);
         $file = $data['document'];
         $path = $file->store('financial-ocr', 'local');
 
         try {
-            $text = $ocr->extract(Storage::disk('local')->path($path), $file->getMimeType(), $file->getClientOriginalName());
+            $prepared = $preprocessor->prepare(Storage::disk('local')->path($path), $file->getMimeType(), $file->getClientOriginalName());
+            $text = $ocr->extract($prepared['path'], $prepared['mime_type'], $prepared['original_name']);
+            if ($prepared['temporary']) @unlink($prepared['path']);
             $draft = $parser->parse($text);
             $draft['support_path'] = $path;
             $draft['support_name'] = $file->getClientOriginalName();
@@ -48,6 +51,7 @@ class FinancialMovementController extends Controller
             session()->put('ocr_drafts.'.$draft['token'], $draft);
             return response()->json(['draft' => Arr::except($draft, ['support_path', 'support_name', 'support_mime_type', 'raw_text'])]);
         } catch (Throwable) {
+            if (isset($prepared) && ($prepared['temporary'] ?? false)) @unlink($prepared['path']);
             Storage::disk('local')->delete($path);
             return response()->json(['message' => 'No pudimos leer correctamente este documento. Puedes intentar con otra imagen o registrar el gasto manualmente.'], 422);
         }
