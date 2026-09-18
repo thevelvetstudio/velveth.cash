@@ -52,7 +52,7 @@ class RolesAndUsersSeeder extends Seeder
         $contador = Role::firstOrCreate([
             'name' => 'contador',
             'guard_name' => 'web',
-        ]);
+        ]); 
 
         $jefeDepartamento = Role::firstOrCreate([
             'name' => 'jefe_departamento',
