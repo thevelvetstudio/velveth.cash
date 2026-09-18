@@ -6,6 +6,12 @@ import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { FlashToaster } from '@/Components/shared/FlashToaster';
 
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch((error) => {
+        console.error('No se pudo registrar el Service Worker de Velvet:', error);
+    });
+}
+
 type InitialFlashProps = {
     flash?: {
         success?: string | null;

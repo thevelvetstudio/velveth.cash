@@ -12,6 +12,7 @@ export default defineConfig({
         react(),
         VitePWA({
             registerType: 'autoUpdate',
+            outDir: 'public',
             manifest: {
                 name: 'The Velvet Studio',
                 short_name: 'Velvet',

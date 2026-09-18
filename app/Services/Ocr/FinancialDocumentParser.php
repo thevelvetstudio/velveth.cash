@@ -17,7 +17,7 @@ class FinancialDocumentParser
         $subtotal = $this->amountAfter($normalized, ['SUBTOTAL', 'BASE GRAVABLE']);
         $discount = $this->amountAfter($normalized, ['DESCUENTO', 'DESCUENTOS']);
         $tax = $this->amountAfter($normalized, ['IVA', 'IMPUESTO', 'IMPUESTOS']);
-        $total = $this->amountAfter($normalized, ['TOTAL A PAGAR', 'VALOR A PAGAR', 'TOTAL']);
+        $total = $this->finalTotal($normalized);
         $lineItems = $this->extractLineItems($normalized);
         $validation = $this->validateTotals($subtotal, $discount, $tax, $total, $lineItems);
 
@@ -47,6 +47,22 @@ class FinancialDocumentParser
     private function normalizeNit(?string $nit): ?string { if (!$nit) return null; $digits = preg_replace('/\D/', '', $nit); return strlen($digits) >= 10 ? substr($digits, 0, 9).'-'.substr($digits, 9, 1) : (strlen($digits) === 9 ? $digits : null); }
     private function findDate(string $text): ?string { if (preg_match('/\b(\d{4})-(\d{1,2})-(\d{1,2})\b/', $text, $iso)) return checkdate((int) $iso[2], (int) $iso[3], (int) $iso[1]) ? sprintf('%04d-%02d-%02d', $iso[1], $iso[2], $iso[3]) : null; if (!preg_match('/\b(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})\b/', $text, $date)) return null; try { return Carbon::createFromFormat('d/m/Y', "$date[1]/$date[2]/$date[3]")->format('Y-m-d'); } catch (\Throwable) { return null; } }
     private function amountAfter(string $text, array $labels): ?float { $value = $this->find($text, '/\b(?:'.implode('|', $labels).')\b\s*[:\-]?\s*(?:COP\s*)?\$?\s*([\d.,]+)/i', 1); return $value ? $this->normalizeAmount($value) : null; }
+    private function finalTotal(string $text): ?float
+    {
+        $lines = preg_split('/\R/', $text) ?: [];
+        $candidates = [];
+        foreach ($lines as $index => $line) {
+            $line = trim($line);
+            if (!preg_match('/^(?:TOTAL\s+A\s+PAGAR|VALOR\s+A\s+PAGAR|TOTAL\s+PAGAR|TOTAL)\b/i', $line)) continue;
+            if (preg_match('/(?:COP\s*)?\$?\s*([\d.,]+)\s*$/i', $line, $match)) {
+                $candidates[] = $this->normalizeAmount($match[1]);
+                continue;
+            }
+            $nextLine = trim($lines[$index + 1] ?? '');
+            if (preg_match('/^(?:COP\s*)?\$?\s*([\d.,]+)$/i', $nextLine, $match)) $candidates[] = $this->normalizeAmount($match[1]);
+        }
+        return $candidates ? end($candidates) : null;
+    }
     private function extractLineItems(string $text): array
     {
         $items = [];
