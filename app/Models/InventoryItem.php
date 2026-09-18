@@ -14,9 +14,9 @@ class InventoryItem extends Model
         'department_id',
         'name',
         'sku',
+        'category_id',
         'category',
         'quantity',
-        'minimum_stock',
         'unit_cost',
         'location',
         'status',
@@ -26,6 +26,7 @@ class InventoryItem extends Model
 
     protected $appends = [
         'image_url',
+        'category_name',
     ];
 
     protected $casts = [
@@ -40,5 +41,15 @@ class InventoryItem extends Model
     public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class);
+    }
+
+    public function categoryRelation(): BelongsTo
+    {
+        return $this->belongsTo(InventoryCategory::class, 'category_id');
+    }
+
+    public function getCategoryNameAttribute(): ?string
+    {
+        return $this->categoryRelation?->name ?? $this->category;
     }
 }

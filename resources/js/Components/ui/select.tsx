@@ -23,8 +23,8 @@ const SelectContent = React.forwardRef<
     React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content>
 >(({ className, children, ...props }, ref) => (
     <SelectPrimitive.Portal>
-        <SelectPrimitive.Content ref={ref} className={cn('z-50 overflow-hidden rounded-md border border-white/10 bg-[#0D0A0A] text-foreground shadow-xl', className)} {...props}>
-            <SelectPrimitive.Viewport className="p-1">{children}</SelectPrimitive.Viewport>
+        <SelectPrimitive.Content ref={ref} position="popper" side="bottom" sideOffset={4} avoidCollisions={false} className={cn('z-[100] max-h-64 min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-md border border-white/10 bg-[#0D0A0A] text-foreground shadow-xl', className)} {...props}>
+            <SelectPrimitive.Viewport className="max-h-64 w-full overflow-y-auto p-1">{children}</SelectPrimitive.Viewport>
         </SelectPrimitive.Content>
     </SelectPrimitive.Portal>
 ));

@@ -48,7 +48,7 @@ type DashboardMetrics = {
     pendingPurchasesCount: number;
     netFlow: number | string;
     totalBudget: number | string;
-    lowInventoryCount: number;
+    inventoryItemCount: number;
 };
 
 type ChartPoint = {
@@ -79,7 +79,7 @@ const emptyMetrics: DashboardMetrics = {
     pendingPurchasesCount: 0,
     netFlow: 0,
     totalBudget: 0,
-    lowInventoryCount: 0,
+    inventoryItemCount: 0,
 };
 
 function incomeDetail(currentIncome: number, previousIncome: number) {
@@ -134,7 +134,6 @@ export default function Dashboard({
     const pendingPurchasesCount = Number(metrics.pendingPurchasesCount ?? 0);
     const netFlow = Number(metrics.netFlow ?? 0);
     const totalBudget = Number(metrics.totalBudget ?? 0);
-    const lowInventoryCount = Number(metrics.lowInventoryCount ?? 0);
 
     return (
         <AppLayout user={auth.user}>
@@ -227,8 +226,8 @@ export default function Dashboard({
                     <TabsContent value="alertas" className="grid gap-4 md:grid-cols-3">
                         <Alert>
                             <AlertTriangle className="h-4 w-4" />
-                            <AlertTitle>Inventario bajo</AlertTitle>
-                            <AlertDescription>{lowInventoryCount} referencias requieren reposición.</AlertDescription>
+                            <AlertTitle>Bienes en bodega</AlertTitle>
+                            <AlertDescription>{Number(metrics.inventoryItemCount ?? 0)} referencias registradas.</AlertDescription>
                         </Alert>
                         <Alert>
                             <Package className="h-4 w-4" />
